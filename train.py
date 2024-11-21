@@ -21,18 +21,20 @@ def train():
     
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST('data', train=True, download=True, transform=transform),
-        batch_size=64, shuffle=True)
+        batch_size=32, shuffle=True)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = CompactMNIST().to(device)
     
-    optimizer = optim.Adam(model.parameters(), lr=0.002, weight_decay=1e-5)
+    optimizer = optim.Adam(model.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-8)
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer,
-        max_lr=0.002,
+        max_lr=0.004,
         steps_per_epoch=len(train_loader),
         epochs=1,
-        pct_start=0.2
+        pct_start=0.2,
+        div_factor=10,
+        final_div_factor=100
     )
     
     param_count = count_parameters(model)
@@ -50,6 +52,9 @@ def train():
         output = model(data)
         loss = F.nll_loss(output, target)
         loss.backward()
+        
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+        
         optimizer.step()
         scheduler.step()
         
@@ -60,7 +65,8 @@ def train():
         accuracy = 100. * correct / total
         progress_bar.set_postfix({
             'Loss': f'{loss.item():.4f}',
-            'Accuracy': f'{accuracy:.2f}%'
+            'Accuracy': f'{accuracy:.2f}%',
+            'LR': f'{scheduler.get_last_lr()[0]:.6f}'
         })
     
     final_accuracy = 100. * correct / total
