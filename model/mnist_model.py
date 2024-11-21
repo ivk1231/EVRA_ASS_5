@@ -13,15 +13,11 @@ class CompactMNIST(nn.Module):
         self.fc1 = nn.Linear(32 * 7 * 7, 10)
         
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = F.leaky_relu(x, 0.1)
+        x = F.relu(self.bn1(self.conv1(x)))
         x = F.max_pool2d(x, 2)
         x = self.dropout(x)
         
-        x = self.conv2(x)
-        x = self.bn2(x)
-        x = F.leaky_relu(x, 0.1)
+        x = F.relu(self.bn2(self.conv2(x)))
         x = F.max_pool2d(x, 2)
         x = self.dropout(x)
         
