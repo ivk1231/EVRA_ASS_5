@@ -1,0 +1,18 @@
+mnist-challenge/
+├── .github/
+│   └── workflows/
+│       └── model_tests.yml
+├── static/
+│   └── style.css
+├── templates/
+│   └── index.html
+├── model/
+│   ├── __init__.py
+│   └── mnist_model.py
+├── tests/
+│   ├── __init__.py
+│   └── test_model.py
+├── requirements.txt
+├── train.py
+├── server.py
+└── README.md 
