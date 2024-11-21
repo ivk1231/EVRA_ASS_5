@@ -5,11 +5,11 @@ import torch.nn.functional as F
 class CompactMNIST(nn.Module):
     def __init__(self):
         super(CompactMNIST, self).__init__()
-        self.conv1 = nn.Conv2d(1, 16, kernel_size=3, padding=1)
-        self.bn1 = nn.BatchNorm2d(16)
-        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, padding=1)
+        self.conv1 = nn.Conv2d(1, 20, kernel_size=3, padding=1)
+        self.bn1 = nn.BatchNorm2d(20)
+        self.conv2 = nn.Conv2d(20, 32, kernel_size=3, padding=1)
         self.bn2 = nn.BatchNorm2d(32)
-        self.dropout = nn.Dropout(0.2)
+        self.dropout = nn.Dropout(0.15)
         self.fc1 = nn.Linear(32 * 7 * 7, 10)
         
     def forward(self, x):

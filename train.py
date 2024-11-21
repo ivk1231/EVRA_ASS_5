@@ -21,12 +21,19 @@ def train():
     
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST('data', train=True, download=True, transform=transform),
-        batch_size=128, shuffle=True)
+        batch_size=64, shuffle=True)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = CompactMNIST().to(device)
     
-    optimizer = optim.Adam(model.parameters(), lr=0.003)
+    optimizer = optim.Adam(model.parameters(), lr=0.002, weight_decay=1e-5)
+    scheduler = optim.lr_scheduler.OneCycleLR(
+        optimizer,
+        max_lr=0.002,
+        steps_per_epoch=len(train_loader),
+        epochs=1,
+        pct_start=0.2
+    )
     
     param_count = count_parameters(model)
     print(f"Model parameters: {param_count}")
@@ -44,6 +51,7 @@ def train():
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()
+        scheduler.step()
         
         pred = output.argmax(dim=1, keepdim=True)
         correct += pred.eq(target.view_as(pred)).sum().item()
