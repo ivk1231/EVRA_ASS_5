@@ -21,6 +21,7 @@ def train():
         transforms.Normalize((0.1307,), (0.3081,))
     ])
     
+    # Increased batch size for better stability
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST('data', train=True, download=True, transform=transform),
         batch_size=128, shuffle=True)
@@ -28,13 +29,19 @@ def train():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = CompactMNIST().to(device)
     
-    optimizer = optim.AdamW(model.parameters(), lr=0.001, weight_decay=1e-4)
+    # Using SGD with momentum and weight decay
+    optimizer = optim.SGD(model.parameters(), 
+                         lr=0.05,  # Higher initial learning rate
+                         momentum=0.9,
+                         weight_decay=1e-4)  # Added weight decay
+    
+    # Learning rate scheduler for better convergence
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer,
-        max_lr=0.001,
+        max_lr=0.05,
         steps_per_epoch=len(train_loader),
         epochs=1,
-        pct_start=0.3
+        pct_start=0.2  # Reach max_lr at 20% of training
     )
     
     # Print model parameters
@@ -55,6 +62,7 @@ def train():
         loss = F.nll_loss(output, target)
         loss.backward()
         
+        # Gradient clipping for stability
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         
         optimizer.step()
